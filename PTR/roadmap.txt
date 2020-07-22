@@ -1,0 +1,11 @@
+- Tidying up parameters and ETC.
+- Rework menu base.
+- Rework affection bools
+- Work on cmd confliction.
+
+
+Changelog 1.0.2
+- Tidied up prep.del and moved all string related stuff to stringCollections.del.
+- Tidied up the string collection.
+- Removed all ["Array", ["On", "Off"]] bool params, and replaced with a new "Bool" param type.
+- Internal rework a bunch!

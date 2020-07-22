@@ -1,0 +1,28 @@
+playervar define pageIndex;
+playervar define pageCollection;
+playervar define currPage;
+playervar define selectionCursor;
+
+
+void PageSetup(define array) playervar "Page Setup"
+{
+    pageIndex = 0;
+    pageCollection = null;
+    pageCollection[0] = ArraySlice(array, 0, 10);
+    for (define i = 0; i < CountOf(array); i+=10)
+            {
+                if (i != 0)
+                {
+                    pageCollection[(i / 10)] = ArraySlice(array, i, 10);
+                }
+            }
+    selectionCursor = [">", " ", " ", " ", " ", " ", " ", " ", " ", " "];
+    if (CountOf(RemoveFromArray(pageCollection[CountOf(pageCollection) - 1], null)) < 10)
+    {
+        pageCollection[CountOf(pageCollection) - 1] = Append(RemoveFromArray(pageCollection[CountOf(pageCollection) - 1], null), ArraySlice([" ", " ", " ", " ", " ", " ", " ", " ", " "], 0, 10 - CountOf(RemoveFromArray(pageCollection[CountOf(pageCollection) - 1], null))));
+    }
+    currPage = pageCollection[pageIndex];
+}
+
+
+define TrueCount(define array): CountOf(RemoveFromArray(array, " "));

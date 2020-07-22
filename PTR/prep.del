@@ -1,0 +1,65 @@
+globalvar define paramReturn;
+playervar define tempNum;
+globalvar define explanationReturn;
+
+globalvar define superPeople !;
+
+
+
+rule: "Global Preparation"
+    Event.OngoingGlobal
+    {
+        CreateHudText(FilteredArray(AllPlayers(), IsInSpawnRoom(ArrayElement()) && !ArrayElement().menuOpen), <"Welcome!">,  <" \n Welcome to <0>'s Server \n This server is Running Chillzone v.<1> \n PRESS INTERACT TO ACCESS MOD MENU! \n", HostPlayer(), version>, null, Location.Left, 0, Color.White, Color.White, Color.White, HudTextRev.VisibleToAndString, Spectators.DefaultVisibility);
+        CreateHudText(FilteredArray(AllPlayers(), ArrayElement().menuOpen), null, null, <" \n\n\n\n\n\n[CONTROLS] \n Primary Fire - Down \n Secondary Fire - Up \n Ability 1 - Previous Page \n Ability 2 - Next Page">, Location.Left, 1, Color.White, Color.Blue, Color.White, HudTextRev.VisibleToAndString, Spectators.DefaultVisibility);
+        CreateHudText(FilteredArray(AllPlayers(), ArrayElement().menuOpen), null, null, <"  Reload - Select \n  Melee - Back to main menu \n  Ultimate - Close menu">, Location.Left, 2, Color.White, Color.Blue, Color.White, HudTextRev.VisibleToAndString, Spectators.DefaultVisibility);     
+        CreateHudText(AllPlayers(), null, <"<0> Grandeur Hammer Creation!", AbilityIconString(Hero.Torbjorn, ButtonValue(Button.Ability2))>, <"Join Our Discord: \n bit.ly/grandeurhammers">, Location.Right, 0, Color.Yellow, Color.Yellow, Color.White, HudTextRev.VisibleToAndString, Spectators.DefaultVisibility);
+        consoleString = " ";
+    }
+
+rule: "Prep Player Menu"
+    Event.OngoingPlayer
+    if (menuEnt == null)
+    if (HasSpawned())
+    {
+        execString = " ";
+        CreateHudText(EventPlayer(),
+        null,
+        <"Chillzone by Wattson">,
+        <"current role: <0> \n Press interact to access mod menu", role>,
+        Location.Top,
+        1,
+        Color.White,
+        Color.SkyBlue,
+        Color.White,
+        HudTextRev.String,
+        Spectators.DefaultVisibility);
+        menuEnt = LastTextID();
+        menuAccessible = true;
+        if (ArrayContains(superPeople, <"<0>", EventPlayer()>))
+        {
+            SmallMessage(EventPlayer(), <"Welcome <0>", EventPlayer()>);
+            SmallMessage(EventPlayer(), <"Wattson has hardcoded you as an owner, you're welcome!">);
+            SetRole(EventPlayer(), "Owner");
+        }
+        tempNum = 0;
+        for (define i = 0; i < CountOf(toggableCommands); i++) // OR for (define i = 0; CountOf(AllPlayers()); 1)
+            {
+                boolArray[i] = [toggableCommands[i], false];
+            }
+    }
+
+
+rule: "On Leave"
+    Event.OngoingPlayer
+    {
+        DestroyHudText(baseMenuEnt);
+        DestroyHudText(freecamMenu);
+        DestroyEffect(jailInfo[1]);
+        DestroyEffect(blindInfo[1]);
+        DestroyHudText(menuEnt);
+        if (ReturnBool("Rainbow", EventPlayer()))
+        {
+             SwitchToggle("Rainbow", EventPlayer(), false);
+        }
+
+    }

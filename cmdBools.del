@@ -1,0 +1,319 @@
+
+
+playervar define boolArray;
+//[0] = cmd names
+//[1] = boolean value
+//[2] = string value
+
+
+globalvar define toggableCommands;
+
+
+
+playervar define menuAccessible !;
+
+playervar define freecamPos;
+playervar define freecamMenu !;
+
+playervar define loopKill !;
+playervar define isJailed !;
+playervar define jailInfo;
+//[0] - Position
+//[1] - Entity
+
+playervar define blindInfo;
+//[0] - Boolean
+//[1] - Entity
+playervar define reverseControls !;
+playervar define noclipPos;
+playervar define lockedInSpawn !;
+playervar define spin !;
+playervar define rainbowEnts !;
+globalvar define rainbowAni;
+globalvar define rainbowDest;
+
+globalvar define standardAngle;
+globalvar define pauseMatchTime !;
+
+rule: "Pause Time"
+    Event.OngoingGlobal
+    if (pauseMatchTime)
+    {
+        PauseMatchTime();
+    }
+
+rule: "UnPause Time"
+    Event.OngoingGlobal
+    if (pauseMatchTime)
+    {
+        UnpauseMatchTime();
+    }
+
+
+rule: "Start Noclip"
+    Event.OngoingPlayer
+    if (ReturnBool("Noclip", EventPlayer()))
+    {
+        noclipPos = PositionOf();
+        StartForcingPlayerPosition(EventPlayer(), noclipPos, true);
+        ChaseVariableAtRate(noclipPos, noclipPos + Up() * IsButtonHeld(EventPlayer(), Button.Jump) + Down() * IsButtonHeld(EventPlayer(), Button.Crouch) + WorldVectorOf(Vector(XOf(ThrottleOf()), ZOf(ThrottleOf()) * SineFromDegrees(null - VerticalFacingAngleOf()), ZOf(ThrottleOf()) * CosineFromDegrees(VerticalFacingAngleOf())), EventPlayer(), LocalVector.Rotation), 10 * IsButtonHeld(EventPlayer(), Button.Ability1) + 10 * Min(true, (IsButtonHeld(EventPlayer(), Button.Jump) || IsButtonHeld(EventPlayer(), Button.Crouch)) + SquareRoot(DotProduct(ThrottleOf(EventPlayer()), ThrottleOf(EventPlayer())))), RateChaseReevaluation.DestinationAndRate);
+    }
+
+
+
+
+rule: "Stop Noclip"
+    Event.OngoingPlayer
+    if (!ReturnBool("Noclip", EventPlayer()))
+    {
+        StopChasingVariable(noclipPos);
+        StopForcingPlayerPosition(EventPlayer());
+    }
+
+
+rule: "Invisible On"
+    Event.OngoingPlayer
+    if (ReturnBool("Invisible", EventPlayer()))
+    {
+        SetInvisible(EventPlayer(), InvisibleTo.All);
+    }
+
+rule: "Invisible Off"
+    Event.OngoingPlayer
+    if (!ReturnBool("Invisible", EventPlayer()))
+    {
+        SetInvisible(EventPlayer(), InvisibleTo.None);
+    }
+
+rule: "Invincibility On"
+    Event.OngoingPlayer
+    if (ReturnBool("Invincibility", EventPlayer()))
+    {
+        SetStatus(EventPlayer(), null, Status.Invincible, 9999);
+    }
+
+rule: "Invincibility Off"
+    Event.OngoingPlayer
+    if (!ReturnBool("Invincibility", EventPlayer()) || (!HasStatus(EventPlayer(), Status.Invincible) && ReturnBool("Invincibility", EventPlayer())))
+    {
+        Wait(0.1);
+        AbortIfConditionIsFalse();
+        ClearStatus(EventPlayer(), Status.Invincible);
+    }
+
+rule: "Instant Ult"
+    Event.OngoingPlayer
+    if (ReturnBool("Instant Ultimate", EventPlayer()))
+    if (UltimateChargePercent(EventPlayer()) != 100)
+    if (!menuOpen)
+    {
+        SetUltimateCharge(EventPlayer(), 100);
+        Wait(0.75);
+        LoopIfConditionIsTrue();
+    }
+
+rule: "Bunny Jumps"
+    Event.OngoingPlayer
+    if (ReturnBool("Bunny Jumps", EventPlayer()))
+    if (IsOnGround())
+    {
+        ApplyImpulse(EventPlayer(), Up(), RandomInteger(6, 15), Relative.ToWorld, ContraryMotion.Incorporate);
+    }
+
+rule: "Double Jump"
+    Event.OngoingPlayer
+    if (ReturnBool("Infinite Jump", EventPlayer()))
+    if (IsButtonHeld(EventPlayer(), Button.Jump))
+    {
+        ApplyImpulse(EventPlayer(), Up(), 10, Relative.ToWorld, ContraryMotion.Cancel);
+        Wait(0.16);
+        LoopIfConditionIsTrue();
+    }
+
+rule: "Console On"
+    Event.OngoingPlayer
+    if (ReturnBool("Console", EventPlayer()))
+    {
+        consoleViewers = Append(consoleViewers, EventPlayer());
+    }
+
+rule: "Console Off"
+    Event.OngoingPlayer
+    if (!ReturnBool("Console", EventPlayer()))
+    {
+       consoleViewers = RemoveFromArray(consoleViewers, EventPlayer());
+    }
+
+rule: "Spam Abilities Active"
+    Event.OngoingPlayer
+    if (ArrayContains([Hero.Ana, Hero.Mccree], HeroOf(EventPlayer())))
+    if (ReturnBool("Spam Abilities", EventPlayer()))
+    if (!menuOpen)
+    if (IsButtonHeld(EventPlayer(), Button.Ability1))
+    {
+        SetAbility1Enabled(EventPlayer(), false);
+        SetAbilityCooldown(EventPlayer(), ButtonValue(Button.Ability2), 0);
+        CancelPrimaryAction(EventPlayer());
+        Wait(0.017);
+        PressButton(EventPlayer(), Button.Ability2);
+        LoopIfConditionIsTrue();
+        SetAbility1Enabled(EventPlayer(), true);
+    }
+
+
+rule: "Spam Abilities Active"
+    Event.OngoingPlayer
+    if (ReturnBool("Spam Abilities", EventPlayer()))
+    if (!menuOpen)
+    if (IsButtonHeld(EventPlayer(), Button.Reload))
+    {
+        SetAbilityCooldown(EventPlayer(), ButtonValue(Button.Melee), 0);
+        CancelPrimaryAction(EventPlayer());
+        PressButton(EventPlayer(), Button.Melee);
+        Wait(0.032);
+        LoopIfConditionIsTrue();
+    }
+
+define ReturnBool(define cmd !, define player !): FilteredArray(player.boolArray, ArrayElement()[0] == cmd)[0][1];
+define ReturnToggleString(define cmd !, define player !): FilteredArray(player.boolArray, ArrayElement()[0] == cmd)[0][2];
+void SwitchToggle(define cmd !, define player !, define bool !) playervar  "Switch"
+{
+    for (define i = 0; i < CountOf(boolArray); i++) // OR for (define i = 0; CountOf(AllPlayers()); 1)
+    {
+        if (boolArray[i][0] == cmd)
+        {
+            boolArray[i][1] = bool;
+            Abort();
+        }
+    }
+}
+
+rule: "Loop Kill Players"
+    Event.OngoingGlobal
+    if (CountOf(FilteredArray(AllPlayers(), ArrayElement().loopKill)) != 0)
+    {
+        Kill(FilteredArray(AllPlayers(), ArrayElement().loopKill), null);
+        Wait(0.5);
+        LoopIfConditionIsTrue();
+    }
+
+rule: "Aimbot Lock On"
+    Event.OngoingPlayer
+    if (ReturnBool("Aimbot", EventPlayer()))
+    if (IsButtonHeld(EventPlayer(), Button.Ability2))
+    if (!menuOpen)
+    {
+        StartFacing(EventPlayer(), DirectionTowards(EyePosition(EventPlayer()), EyePosition(PlayerClosestToReticle(EventPlayer(), OppositeTeamOf(TeamOf(EventPlayer()))))), 10000, Relative.ToWorld, FacingRev.DirectionAndTurnRate);
+    }
+
+
+rule: "Aimbot Lock Off"
+    Event.OngoingPlayer
+    if (!ReturnBool("Aimbot", EventPlayer()) || menuOpen || !IsButtonHeld(EventPlayer(), Button.Ability2))
+    {
+        StopFacing(EventPlayer());
+    }
+
+rule: "Teleport Shoot"
+    Event.OngoingPlayer
+    if (ReturnBool("Teleport Shoot", EventPlayer()))
+    if (IsFiringPrimary(EventPlayer()))
+    {
+        Teleport(EventPlayer(), LookingAtPos(AllPlayers(), EventPlayer(), 1000));
+        Wait(0.1);
+        LoopIfConditionIsTrue();
+    }
+
+rule: "Spawn Locked"
+    Event.OngoingPlayer
+    if (lockedInSpawn)
+    if (!IsInSpawnRoom())
+    {
+        Respawn(EventPlayer());
+        BigMessage(EventPlayer(), <"Locked in spawn!">);
+    }
+
+rule: "Loop"
+    Event.OngoingGlobal
+    {
+        ChaseVariableOverTime(standardAngle, 360, 1, TimeChaseReevaluation.DestinationAndDuration);
+        ChaseVariableAtRate(rainbowAni, rainbowDest, 1, RateChaseReevaluation.DestinationAndRate);
+        rainbowDest = 0.40;
+    }
+
+rule: "Loop"
+    Event.OngoingGlobal
+    if (standardAngle == 360)
+    {
+        standardAngle = 0;
+    }
+
+
+rule: "Rotate"
+    Event.OngoingPlayer
+    if (spin)
+    {
+        StartFacing(EventPlayer(), DirectionTowards(EyePosition(EventPlayer()), ParametricEasy(PositionOf(), 90, standardAngle)), 1000, Relative.ToWorld, FacingRev.DirectionAndTurnRate);
+    }
+
+
+rule: "Stop Rotate"
+    Event.OngoingPlayer
+    if (!spin)
+    {
+        StopFacing(EventPlayer());
+    }
+
+rule: "Rainbow"
+    Event.OngoingPlayer
+    if (ReturnBool("Rainbow", EventPlayer()))
+    {
+        CreateEffect(AllPlayers(), Effect.Ring, Color.Purple, EventPlayer(), rainbowAni - 0.1, EffectRev.VisibleToPositionAndRadius);
+        rainbowEnts[0] = LastCreatedEntity();
+        CreateEffect(AllPlayers(), Effect.Ring, Color.Blue, EventPlayer(), rainbowAni - 0.2, EffectRev.VisibleToPositionAndRadius);
+        rainbowEnts[1] = LastCreatedEntity();
+        CreateEffect(AllPlayers(), Effect.Ring, Color.Aqua, EventPlayer(), rainbowAni - 0.3, EffectRev.VisibleToPositionAndRadius);
+        rainbowEnts[2] = LastCreatedEntity();
+        CreateEffect(AllPlayers(), Effect.Ring, Color.LimeGreen, EventPlayer(), rainbowAni - 0.4, EffectRev.VisibleToPositionAndRadius);
+        rainbowEnts[3] = LastCreatedEntity();
+        CreateEffect(AllPlayers(), Effect.Ring, Color.Green, EventPlayer(), rainbowAni - 0.5, EffectRev.VisibleToPositionAndRadius);
+        rainbowEnts[4] = LastCreatedEntity();
+        CreateEffect(AllPlayers(), Effect.Ring, Color.Yellow, EventPlayer(), rainbowAni - 0.6, EffectRev.VisibleToPositionAndRadius);
+        rainbowEnts[5] = LastCreatedEntity();
+        CreateEffect(AllPlayers(), Effect.Ring, Color.Orange, EventPlayer(), rainbowAni - 0.7, EffectRev.VisibleToPositionAndRadius);
+        rainbowEnts[6] = LastCreatedEntity();
+        CreateEffect(AllPlayers(), Effect.Ring, Color.Red, EventPlayer(), rainbowAni - 0.8, EffectRev.VisibleToPositionAndRadius);
+        rainbowEnts[7] = LastCreatedEntity();
+        CreateEffect(AllPlayers(), Effect.Ring, Color.Purple, EventPlayer(), rainbowAni - 0.9, EffectRev.VisibleToPositionAndRadius);
+        rainbowEnts[8] = LastCreatedEntity();
+        CreateEffect(AllPlayers(), Effect.Ring, Color.Blue, EventPlayer(), rainbowAni - 1, EffectRev.VisibleToPositionAndRadius);
+        rainbowEnts[9] = LastCreatedEntity();
+        CreateEffect(AllPlayers(), Effect.Ring, Color.Aqua, EventPlayer(), rainbowAni - 1.1, EffectRev.VisibleToPositionAndRadius);
+        rainbowEnts[10] = LastCreatedEntity();
+    }
+
+
+rule: "Unrainbow"
+    Event.OngoingPlayer
+    if (!ReturnBool("Rainbow", EventPlayer()))
+    {
+        foreach (define i in rainbowEnts)
+        {
+            DestroyEffect(i);
+        }
+    }
+
+
+rule: "Loop Rainbow"
+    Event.OngoingGlobal
+    if (rainbowAni == 1.45)
+    {
+        rainbowDest = 0.40;
+    }
+
+rule: "Loop Rainbow"
+    Event.OngoingGlobal
+    if (rainbowAni == 0.40)
+    {
+        rainbowDest = 1.45;
+    }
