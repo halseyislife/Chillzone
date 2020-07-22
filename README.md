@@ -1,2 +1,2 @@
 # Chillzone
- hMenu 2's predecessor
+ hMenu 2's successor
