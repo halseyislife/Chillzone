@@ -1,38 +1,25 @@
 
 
-playervar define boolArray;
+playervar define boolArray; //personal bools
 //[0] = cmd names
 //[1] = boolean value
 //[2] = string value
 
 
-globalvar define toggableCommands;
 
 
 
 playervar define menuAccessible !;
 
-playervar define freecamPos;
-playervar define freecamMenu !;
 
-playervar define loopKill !;
-playervar define isJailed !;
-playervar define jailInfo;
-//[0] - Position
-//[1] - Entity
 
-playervar define blindInfo;
-//[0] - Boolean
-//[1] - Entity
-playervar define reverseControls !;
 playervar define noclipPos;
-playervar define lockedInSpawn !;
-playervar define spin !;
+
 playervar define rainbowEnts !;
 globalvar define rainbowAni;
 globalvar define rainbowDest;
-
 globalvar define standardAngle;
+
 globalvar define pauseMatchTime !;
 
 rule: "Pause Time"
@@ -44,62 +31,16 @@ rule: "Pause Time"
 
 rule: "UnPause Time"
     Event.OngoingGlobal
-    if (pauseMatchTime)
+    if (!pauseMatchTime)
     {
         UnpauseMatchTime();
     }
 
 
-rule: "Start Noclip"
-    Event.OngoingPlayer
-    if (ReturnBool("Noclip", EventPlayer()))
-    {
-        noclipPos = PositionOf();
-        StartForcingPlayerPosition(EventPlayer(), noclipPos, true);
-        ChaseVariableAtRate(noclipPos, noclipPos + Up() * IsButtonHeld(EventPlayer(), Button.Jump) + Down() * IsButtonHeld(EventPlayer(), Button.Crouch) + WorldVectorOf(Vector(XOf(ThrottleOf()), ZOf(ThrottleOf()) * SineFromDegrees(null - VerticalFacingAngleOf()), ZOf(ThrottleOf()) * CosineFromDegrees(VerticalFacingAngleOf())), EventPlayer(), LocalVector.Rotation), 10 * IsButtonHeld(EventPlayer(), Button.Ability1) + 10 * Min(true, (IsButtonHeld(EventPlayer(), Button.Jump) || IsButtonHeld(EventPlayer(), Button.Crouch)) + SquareRoot(DotProduct(ThrottleOf(EventPlayer()), ThrottleOf(EventPlayer())))), RateChaseReevaluation.DestinationAndRate);
-    }
 
 
 
 
-rule: "Stop Noclip"
-    Event.OngoingPlayer
-    if (!ReturnBool("Noclip", EventPlayer()))
-    {
-        StopChasingVariable(noclipPos);
-        StopForcingPlayerPosition(EventPlayer());
-    }
-
-
-rule: "Invisible On"
-    Event.OngoingPlayer
-    if (ReturnBool("Invisible", EventPlayer()))
-    {
-        SetInvisible(EventPlayer(), InvisibleTo.All);
-    }
-
-rule: "Invisible Off"
-    Event.OngoingPlayer
-    if (!ReturnBool("Invisible", EventPlayer()))
-    {
-        SetInvisible(EventPlayer(), InvisibleTo.None);
-    }
-
-rule: "Invincibility On"
-    Event.OngoingPlayer
-    if (ReturnBool("Invincibility", EventPlayer()))
-    {
-        SetStatus(EventPlayer(), null, Status.Invincible, 9999);
-    }
-
-rule: "Invincibility Off"
-    Event.OngoingPlayer
-    if (!ReturnBool("Invincibility", EventPlayer()) || (!HasStatus(EventPlayer(), Status.Invincible) && ReturnBool("Invincibility", EventPlayer())))
-    {
-        Wait(0.1);
-        AbortIfConditionIsFalse();
-        ClearStatus(EventPlayer(), Status.Invincible);
-    }
 
 rule: "Instant Ult"
     Event.OngoingPlayer
@@ -130,19 +71,7 @@ rule: "Double Jump"
         LoopIfConditionIsTrue();
     }
 
-rule: "Console On"
-    Event.OngoingPlayer
-    if (ReturnBool("Console", EventPlayer()))
-    {
-        consoleViewers = Append(consoleViewers, EventPlayer());
-    }
 
-rule: "Console Off"
-    Event.OngoingPlayer
-    if (!ReturnBool("Console", EventPlayer()))
-    {
-       consoleViewers = RemoveFromArray(consoleViewers, EventPlayer());
-    }
 
 rule: "Spam Abilities Active"
     Event.OngoingPlayer
@@ -174,28 +103,9 @@ rule: "Spam Abilities Active"
         LoopIfConditionIsTrue();
     }
 
-define ReturnBool(define cmd !, define player !): FilteredArray(player.boolArray, ArrayElement()[0] == cmd)[0][1];
-define ReturnToggleString(define cmd !, define player !): FilteredArray(player.boolArray, ArrayElement()[0] == cmd)[0][2];
-void SwitchToggle(define cmd !, define player !, define bool !) playervar  "Switch"
-{
-    for (define i = 0; i < CountOf(boolArray); i++) // OR for (define i = 0; CountOf(AllPlayers()); 1)
-    {
-        if (boolArray[i][0] == cmd)
-        {
-            boolArray[i][1] = bool;
-            Abort();
-        }
-    }
-}
 
-rule: "Loop Kill Players"
-    Event.OngoingGlobal
-    if (CountOf(FilteredArray(AllPlayers(), ArrayElement().loopKill)) != 0)
-    {
-        Kill(FilteredArray(AllPlayers(), ArrayElement().loopKill), null);
-        Wait(0.5);
-        LoopIfConditionIsTrue();
-    }
+
+
 
 rule: "Aimbot Lock On"
     Event.OngoingPlayer
@@ -224,20 +134,19 @@ rule: "Teleport Shoot"
         LoopIfConditionIsTrue();
     }
 
-rule: "Spawn Locked"
-    Event.OngoingPlayer
-    if (lockedInSpawn)
-    if (!IsInSpawnRoom())
-    {
-        Respawn(EventPlayer());
-        BigMessage(EventPlayer(), <"Locked in spawn!">);
-    }
 
-rule: "Loop"
+
+
+
+
+
+
+rule: "Loops Start"
     Event.OngoingGlobal
     {
-        ChaseVariableOverTime(standardAngle, 360, 1, TimeChaseReevaluation.DestinationAndDuration);
         ChaseVariableAtRate(rainbowAni, rainbowDest, 1, RateChaseReevaluation.DestinationAndRate);
+        ChaseVariableOverTime(standardAngle, 360, 1, TimeChaseReevaluation.DestinationAndDuration);
+        standardAngle = 0;
         rainbowDest = 0.40;
     }
 
@@ -246,61 +155,8 @@ rule: "Loop"
     if (standardAngle == 360)
     {
         standardAngle = 0;
-    }
-
-
-rule: "Rotate"
-    Event.OngoingPlayer
-    if (spin)
-    {
-        StartFacing(EventPlayer(), DirectionTowards(EyePosition(EventPlayer()), ParametricEasy(PositionOf(), 90, standardAngle)), 1000, Relative.ToWorld, FacingRev.DirectionAndTurnRate);
-    }
-
-
-rule: "Stop Rotate"
-    Event.OngoingPlayer
-    if (!spin)
-    {
-        StopFacing(EventPlayer());
-    }
-
-rule: "Rainbow"
-    Event.OngoingPlayer
-    if (ReturnBool("Rainbow", EventPlayer()))
-    {
-        CreateEffect(AllPlayers(), Effect.Ring, Color.Purple, EventPlayer(), rainbowAni - 0.1, EffectRev.VisibleToPositionAndRadius);
-        rainbowEnts[0] = LastCreatedEntity();
-        CreateEffect(AllPlayers(), Effect.Ring, Color.Blue, EventPlayer(), rainbowAni - 0.2, EffectRev.VisibleToPositionAndRadius);
-        rainbowEnts[1] = LastCreatedEntity();
-        CreateEffect(AllPlayers(), Effect.Ring, Color.Aqua, EventPlayer(), rainbowAni - 0.3, EffectRev.VisibleToPositionAndRadius);
-        rainbowEnts[2] = LastCreatedEntity();
-        CreateEffect(AllPlayers(), Effect.Ring, Color.LimeGreen, EventPlayer(), rainbowAni - 0.4, EffectRev.VisibleToPositionAndRadius);
-        rainbowEnts[3] = LastCreatedEntity();
-        CreateEffect(AllPlayers(), Effect.Ring, Color.Green, EventPlayer(), rainbowAni - 0.5, EffectRev.VisibleToPositionAndRadius);
-        rainbowEnts[4] = LastCreatedEntity();
-        CreateEffect(AllPlayers(), Effect.Ring, Color.Yellow, EventPlayer(), rainbowAni - 0.6, EffectRev.VisibleToPositionAndRadius);
-        rainbowEnts[5] = LastCreatedEntity();
-        CreateEffect(AllPlayers(), Effect.Ring, Color.Orange, EventPlayer(), rainbowAni - 0.7, EffectRev.VisibleToPositionAndRadius);
-        rainbowEnts[6] = LastCreatedEntity();
-        CreateEffect(AllPlayers(), Effect.Ring, Color.Red, EventPlayer(), rainbowAni - 0.8, EffectRev.VisibleToPositionAndRadius);
-        rainbowEnts[7] = LastCreatedEntity();
-        CreateEffect(AllPlayers(), Effect.Ring, Color.Purple, EventPlayer(), rainbowAni - 0.9, EffectRev.VisibleToPositionAndRadius);
-        rainbowEnts[8] = LastCreatedEntity();
-        CreateEffect(AllPlayers(), Effect.Ring, Color.Blue, EventPlayer(), rainbowAni - 1, EffectRev.VisibleToPositionAndRadius);
-        rainbowEnts[9] = LastCreatedEntity();
-        CreateEffect(AllPlayers(), Effect.Ring, Color.Aqua, EventPlayer(), rainbowAni - 1.1, EffectRev.VisibleToPositionAndRadius);
-        rainbowEnts[10] = LastCreatedEntity();
-    }
-
-
-rule: "Unrainbow"
-    Event.OngoingPlayer
-    if (!ReturnBool("Rainbow", EventPlayer()))
-    {
-        foreach (define i in rainbowEnts)
-        {
-            DestroyEffect(i);
-        }
+        Wait(1);
+        LoopIfConditionIsTrue();
     }
 
 
@@ -317,3 +173,95 @@ rule: "Loop Rainbow"
     {
         rainbowDest = 1.45;
     }
+
+
+
+
+define ReturnBool(define cmd !, define player !): FilteredArray(player.boolArray, ArrayElement()[0] == cmd)[0][1];
+define ReturnToggleString(define cmd !, define player !): FilteredArray(player.boolArray, ArrayElement()[0] == cmd)[0][2];
+void SwitchToggle(define cmd !, define bool !) playervar  "Switch"
+{
+    boolArray[IndexOfArrayValue(toggableCommands, cmd)][1] = bool;
+    if (bool == true)
+    {
+        OnToggle(cmd);
+    }
+    else if (bool == false)
+    {
+        OffToggle(cmd);
+    }
+}
+
+void OnToggle(define cmd !) playervar "OnToggle"
+{
+    switch (cmd)
+    {
+        case "Noclip": {
+        noclipPos = PositionOf();
+        StartForcingPlayerPosition(EventPlayer(), noclipPos, true);
+        ChaseVariableAtRate(noclipPos, noclipPos + Up() * IsButtonHeld(EventPlayer(), Button.Jump) + Down() * IsButtonHeld(EventPlayer(), Button.Crouch) + WorldVectorOf(Vector(XOf(ThrottleOf()), ZOf(ThrottleOf()) * SineFromDegrees(null - VerticalFacingAngleOf()), ZOf(ThrottleOf()) * CosineFromDegrees(VerticalFacingAngleOf())), EventPlayer(), LocalVector.Rotation), 10 * IsButtonHeld(EventPlayer(), Button.Ability1) + 10 * Min(true, (IsButtonHeld(EventPlayer(), Button.Jump) || IsButtonHeld(EventPlayer(), Button.Crouch)) + SquareRoot(DotProduct(ThrottleOf(EventPlayer()), ThrottleOf(EventPlayer())))), RateChaseReevaluation.DestinationAndRate);
+        } break;
+        case "Invisible": {
+            SetInvisible(EventPlayer(), InvisibleTo.All);
+        } break;
+        case "Invincibility": {
+            SetStatus(EventPlayer(), null, Status.Invincible, 9999);
+        } break;
+        case "Console": {
+            consoleViewers = Append(consoleViewers, EventPlayer());
+        } break;
+        case "Rainbow": {
+            CreateEffect(AllPlayers(), Effect.Ring, Color.Purple, EventPlayer(), rainbowAni - 0.1, EffectRev.VisibleToPositionAndRadius);
+            rainbowEnts[0] = LastCreatedEntity();
+            CreateEffect(AllPlayers(), Effect.Ring, Color.Blue, EventPlayer(), rainbowAni - 0.2, EffectRev.VisibleToPositionAndRadius);
+            rainbowEnts[1] = LastCreatedEntity();
+            CreateEffect(AllPlayers(), Effect.Ring, Color.Aqua, EventPlayer(), rainbowAni - 0.3, EffectRev.VisibleToPositionAndRadius);
+            rainbowEnts[2] = LastCreatedEntity();
+            CreateEffect(AllPlayers(), Effect.Ring, Color.LimeGreen, EventPlayer(), rainbowAni - 0.4, EffectRev.VisibleToPositionAndRadius);
+            rainbowEnts[3] = LastCreatedEntity();
+            CreateEffect(AllPlayers(), Effect.Ring, Color.Green, EventPlayer(), rainbowAni - 0.5, EffectRev.VisibleToPositionAndRadius);
+            rainbowEnts[4] = LastCreatedEntity();
+            CreateEffect(AllPlayers(), Effect.Ring, Color.Yellow, EventPlayer(), rainbowAni - 0.6, EffectRev.VisibleToPositionAndRadius);
+            rainbowEnts[5] = LastCreatedEntity();
+            CreateEffect(AllPlayers(), Effect.Ring, Color.Orange, EventPlayer(), rainbowAni - 0.7, EffectRev.VisibleToPositionAndRadius);
+            rainbowEnts[6] = LastCreatedEntity();
+            CreateEffect(AllPlayers(), Effect.Ring, Color.Red, EventPlayer(), rainbowAni - 0.8, EffectRev.VisibleToPositionAndRadius);
+            rainbowEnts[7] = LastCreatedEntity();
+            CreateEffect(AllPlayers(), Effect.Ring, Color.Purple, EventPlayer(), rainbowAni - 0.9, EffectRev.VisibleToPositionAndRadius);
+            rainbowEnts[8] = LastCreatedEntity();
+        } break;
+        case "Thirdperson": {
+            StartCamera(EventPlayer(), ThirdpersonPos(EventPlayer()), ThirdpersonLook(EventPlayer()), 0);
+        } break;
+    }
+}
+
+void OffToggle(define cmd !) playervar "Off Toggle"
+{
+    switch (cmd)
+    {
+        case "Noclip": {
+            StopChasingVariable(noclipPos);
+            StopForcingPlayerPosition(EventPlayer());
+        } break;
+        case "Invisible": {
+            SetInvisible(EventPlayer(), InvisibleTo.None);
+        } break;
+        case "Invincibility": {
+            ClearStatus(EventPlayer(), Status.Invincible);
+        } break;
+        case "Console": {
+            consoleViewers = RemoveFromArray(consoleViewers, EventPlayer());
+        } break;
+        case "Rainbow": {
+            foreach (define i in rainbowEnts)
+            {
+                DestroyEffect(i);
+            }
+        } break;
+        case "Thirdperson": 
+        {
+            StopCamera();
+        } break;
+    }
+}

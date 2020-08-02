@@ -1,3 +1,4 @@
+playervar define camPerson !;
 void StatusSet(define args !) "ST" //translates command into a block
 {
     switch (args[1])
@@ -15,71 +16,13 @@ void StatusSet(define args !) "ST" //translates command into a block
     }
 }
 
-void CameraSet(define type !, define player, define arrayInfo) playervar "CameraSet"
-{
-   //hm
-}
 
 
-rule: "Jail On Player"
-    Event.OngoingPlayer
-    if (isJailed)
-    {
-        isJailed = true;
-        jailInfo[0] = NearestWalkablePosition(PositionOf(EventPlayer()));
-        SetStatus(EventPlayer(), null, Status.Stunned, 3.5);
-        CreateEffect(AllPlayers(), Effect.LightShaft, Color.Red, jailInfo[0], 4.5, EffectRev.VisibleTo);
-        jailInfo[1] = LastCreatedEntity();
-    }
 
-rule: "Jail Off Player"
-    Event.OngoingPlayer
-    if (!isJailed)
-    {
-        DestroyEffect(jailInfo[1]);
-    }
+define ThirdpersonPos(define player): (((player + (WorldVectorOf(Vector(-0.300,0.500,-0.100), player) * player.scalar)) + (Up() * 1.5 * player.scalar)) + (FacingDirectionOf(player) * (-2.0 * (player.scalar / 1.25))));
 
-rule: "Blind On Player"
-    Event.OngoingPlayer
-    if (blindInfo[0])
-    {
-        blindInfo[0] = true;
-        CreateEffect(EventPlayer(), Effect.Sphere, Color.White, EventPlayer(), 25, EffectRev.None);
-        blindInfo[1] = LastCreatedEntity();
-    }
+define ThirdpersonLook(define player): (player + (FacingDirectionOf(player) * 1000));
 
-rule: "Blind Off Player"
-    Event.OngoingPlayer
-    if (!blindInfo[0])
-    {
-        DestroyEffect(blindInfo[1]);
-    }
-
-rule: "Reverse Controls On"
-    Event.OngoingPlayer
-    if (reverseControls)
-    {
-        StartTransformingThrottle(EventPlayer(), -1, -1, FacingDirectionOf(EventPlayer()));
-    }
-
-rule: "Reverse Controls Off"
-    Event.OngoingPlayer
-    if (!reverseControls)
-    {
-        StopTransformingThrottle(EventPlayer());
-        StartTransformingThrottle(EventPlayer(), 1, 1, FacingDirectionOf(EventPlayer()));
-    }
-rule: "Player Exited Jail"
-    Event.OngoingPlayer
-    if (isJailed)
-    if (DistanceBetween(jailInfo[0], PositionOf(EventPlayer())) > 4.45)
-    {
-        Teleport(EventPlayer(), jailInfo[0]);
-        SetStatus(EventPlayer(), null, Status.Stunned, 1.5);
-        BigMessage(EventPlayer(), <"DO NOT LEAVE JAIL">);
-        Wait(0.5);
-        LoopIfConditionIsTrue();
-    }
 
 void PlayerStatusClear(define status !, define player !) "PSC" //translates command into a block
 {

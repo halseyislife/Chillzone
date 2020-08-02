@@ -9,12 +9,15 @@ import "stringCollections.del";
 import "prep.del";
 import "orb.del";
 import "pages.del";
+import "portals.del";
+import "statusMgr.del";
+import "procCmdAttr.del";
+
 globalvar define consoleString;
 globalvar define consoleViewers;
 playervar define allowedCMDS;
 playervar define menuOpen;
 playervar define role;
-
 
 playervar define baseMenuEnt;
 playervar define menuEnt;
@@ -53,7 +56,7 @@ playervar define isExecuting;
 playervar define tempEffect;
 playervar define poisonID;
 playervar define scalar;
-//XJK2G
+//MV8Z8
 
 
 rule: "Toggle On"
@@ -111,7 +114,7 @@ void OpenMenu() playervar "Open Menu"
     arrayCollection = allowedCMDS;
     CreateHudText(EventPlayer(),
         null,
-        <" \n \n \n \n \n \n \n \n \n \n \n [CHILLZONE MENU] \n <0>", selectionString>,
+        <" \n\n\n\n[CHILLZONE MENU] \n <0>", selectionString>,
         <" <0> <1> \n <2> <3> \n <4> <5> \n <6> <7> \n <8> <9> \n <10> <11> \n <12> <13> \n <14> <15> \n <16> <17> \n <18> <19> \n [Page <20> / <21>]", selectionCursor[0], currPage[0], selectionCursor[1], currPage[1] ,selectionCursor[2], currPage[2], selectionCursor[3], currPage[3], selectionCursor[4], currPage[4], selectionCursor[5], currPage[5], selectionCursor[6], currPage[6], selectionCursor[7], currPage[7], selectionCursor[8], currPage[8], selectionCursor[9], currPage[9], pageIndex + 1, CountOf(pageCollection)>,
         Location.Top,
         2,
@@ -124,15 +127,19 @@ void OpenMenu() playervar "Open Menu"
     CreateHudText(EventPlayer(),
         null,
         tempStrings[2],
-        <"Command Selected: <0> \n\n\n<1> <2>", stringCMD, tempStrings[1], numArg>,
+        <" \nCommand Selected: <0> \n\n\n<1> <2>", stringCMD, tempStrings[1], numArg>,
         Location.Top,
         3,
         Color.White,
-        Color.Blue,
+        Color.White,
         Color.White,
         HudTextRev.String,
         Spectators.DefaultVisibility);
     baseMenuEnt[1] = LastTextID();
+    CreateHudText(EventPlayer(), null, null, <" \n\n\n\n\n\n[Menu Navigation CONTROLS]\n <0> - Down \n <1> - Up \n <2> - Previous Page \n <3> - Next Page", InputBindingString(ButtonValue(Button.PrimaryFire)), InputBindingString(ButtonValue(Button.SecondaryFire)), InputBindingString(ButtonValue(Button.Ability1)), InputBindingString(ButtonValue(Button.Ability2))>, Location.Left, 4, Color.White, Color.Blue, Color.White, HudTextRev.VisibleToAndString, Spectators.DefaultVisibility);
+    baseMenuEnt[2] = LastTextID();
+    CreateHudText(EventPlayer(), null, null, <" <0> - Select \n <1> - Back to main menu \n <2> - Close menu", InputBindingString(ButtonValue(Button.Reload)), InputBindingString(ButtonValue(Button.Melee)), InputBindingString(ButtonValue(Button.Ultimate))>, Location.Left, 5, Color.White, Color.Blue, Color.White, HudTextRev.VisibleToAndString, Spectators.DefaultVisibility);
+    baseMenuEnt[3] = LastTextID();
     PageSetup(allowedCMDS);
     stringCMD = <"No command selected">;
     selectionString = <"Select a command">;
@@ -140,6 +147,8 @@ void OpenMenu() playervar "Open Menu"
     tempStrings[1] = " ";
     numArg = " ";
     DisableControls();
+    DisableHeroHud(EventPlayer());
+    DisableGameModeHud(EventPlayer());
 }
 
 void CloseMenu(define player !) playervar "Close Menu"
@@ -148,7 +157,11 @@ void CloseMenu(define player !) playervar "Close Menu"
     player.menuOpen = false;
     DestroyHudText(player.baseMenuEnt[0]);
     DestroyHudText(player.baseMenuEnt[1]);
+    DestroyHudText(player.baseMenuEnt[2]);
+    DestroyHudText(player.baseMenuEnt[3]);
     EnableControls(player);
+    EnableHeroHud(EventPlayer());
+    EnableGameModeHud(EventPlayer());
 }
 
 rule: "Add To Index"
@@ -189,6 +202,7 @@ rule: "Add To Index Page"
     Event.OngoingPlayer
     if (menuOpen)
     if (IsButtonHeld(EventPlayer(), Button.Ability2))
+    if (selectedCMD == null)
     {
         selectionCursor[selectedIndex] = " ";
         selectedIndex = 0;
@@ -206,6 +220,7 @@ rule: "Add To Index Page"
 rule: "Subtract Index Page"
     Event.OngoingPlayer
     if (menuOpen)
+    if (selectedCMD == null)
     if (IsButtonHeld(EventPlayer(), Button.Ability1))
     {
         selectionCursor[selectedIndex] = " ";

@@ -1,6 +1,6 @@
+
 define ReturnDesc(define cmd !): FilteredArray(explanationReturn, ArrayElement()[0] == cmd)[0][1];
 define LookingAtPos(define accept, define exclude, define rangeLims): RayCastHitPosition(EyePosition(), Destination(EyePosition(), FacingDirectionOf(), rangeLims), accept, exclude, false);
-
 define ReplaceInArray(define array, define replacedValue, define newValue): InsertValueInArray(RemoveFromArray(array, replacedValue), IndexOfArrayValue(array,replacedValue), newValue);
 
 void StoreCommand() playervar "Store Command"
@@ -164,9 +164,9 @@ rule: "Update Command Desc"
     Event.OngoingPlayer
     if (menuOpen)
     if (selectedCMD == null)
-    if (tempStrings[2] != <"Command Description: \n <0>", ReturnDesc(currPage[selectedIndex])>)
+    if (tempStrings[2] != <"Command Description: <0>", ReturnDesc(currPage[selectedIndex])>)
     {
-        tempStrings[2] = <"Command Description: \n <0>", ReturnDesc(currPage[selectedIndex])>;
+        tempStrings[2] = <"Command Description: <0>", ReturnDesc(currPage[selectedIndex])>;
         Wait(0.1);
         LoopIfConditionIsTrue();
     }
@@ -175,9 +175,9 @@ rule: "Update Command Desc"
     Event.OngoingPlayer
     if (menuOpen)
     if (selectedCMD != null)
-    if (tempStrings[2] != <"Command Description: \n <0>", ReturnDesc(selectedCMD)>)
+    if (tempStrings[2] != <"Command Description: <0>", ReturnDesc(selectedCMD)>)
     {
-        tempStrings[2] = <"Command Description: \n <0>", ReturnDesc(selectedCMD)>;
+        tempStrings[2] = <"Command Description: <0>", ReturnDesc(selectedCMD)>;
         Wait(0.1);
         LoopIfConditionIsTrue();
     }

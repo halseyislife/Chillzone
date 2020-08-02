@@ -4,6 +4,14 @@ globalvar define comLines !;
 globalvar define version !;
 
 globalvar define menuStrings !;
+
+globalvar define toggableCommands;
+globalvar define statusCommands;
+
+globalvar define modelAttributeArray;
+
+
+
 rule: "Setup String Collections"
     Event.OngoingGlobal
     {
@@ -11,11 +19,18 @@ rule: "Setup String Collections"
         adminCMDS = ["Kill Player", "Bring Player", "Set Player's Status", "Clear Player's Status", "Toggle Menu Access", "Loop Kill Player", "Explode Player", "Set Player Damage Power",
         "Jail Player", "Blind Player", "Set Player Ultimate Charge", "Set Player Max HP", "Damage Player", "Heal Player", "Reverse Player Controls", "Set Player Ability Cooldown",
         "Communicate Player", "Console", "Admin Orb", "Force Command", "Poison Player", "Spawn Lock Player", "Set Player Aim Speed", "Spin Player", "Match Time Paused", "Set Match Time"];
-        userCMDS = ["Teleport To", "Kill Self", "Set Speed", "Invisible", "Respawn", "Select Hero", "Set Projectile Speed", "Teleport Outside Map", "Set Gravity", "Invincibility", "Set Self Status",
-        "Clear Self Status", "Set Projectile Gravity", "Instant Ultimate", "Noclip", "Bunny Jumps", "Infinite Jump", "Spam Abilities", "Aimbot", "Teleport Shoot", "Rainbow"];
+        userCMDS = ["Teleport To", "Resize Self", "Thirdperson", "Rainbow", "Set Character Voice Pitch", "Kill Self", "Set Speed", "Invisible", "Respawn", "Select Hero", "Set Projectile Speed", "Teleport Outside Map", "Set Gravity", "Invincibility", "Set Self Status",
+        "Clear Self Status", "Set Projectile Gravity", "Instant Ultimate", "Noclip", "Bunny Jumps", "Infinite Jump", "Spam Abilities", "Aimbot", "Teleport Shoot", "Portal"];
         ownerCMDS = ["Add Admin", "Remove Admin", "Time Bend"];
+
+
+
         statusArray = ["Hacked", "Burning", "Knocked Down", "Asleep", "Frozen", "Unkillable", "Invincible", "Phased Out", "Rooted", "Stunned"];
         keyWords = ["Player", "Array", "Num", "Bool"];
+
+
+
+
         paramReturn = [["Teleport To", ["Player"]],
         ["Kill Self", null],
         ["Set Speed", ["Num", [0,2500]]],
@@ -65,8 +80,28 @@ rule: "Setup String Collections"
         ["Rainbow", ["Bool"]],
         ["Set Match Time", ["Num", [0, 10000]]],
         ["Match Time Paused", ["Bool"]],
-        ["Time Bend", ["Num", [1,100]]]];
-        toggableCommands = ["Invisible", "Invincibility", "Instant Ultimate", "Noclip", "Bunny Jumps", "Infinite Jump", "Console", "Admin Orb", "Spam Abilities", "Aimbot", "Teleport Shoot", "Rainbow"];
+        ["Time Bend", ["Num", [1,100]]],
+        ["Portal", ["Array", ["Portal 1", "Portal 2", "Destroy Portals"]]],
+        ["Resize Self", ["Num", [10, 400]]],
+        ["Thirdperson", ["Bool"]],
+        ["Set Character Voice Pitch", ["Num", [1, 400]]]];
+
+
+
+
+
+        toggableCommands = ["Invisible", "Invincibility", "Instant Ultimate", "Noclip", "Bunny Jumps", "Infinite Jump", "Console", "Admin Orb", "Spam Abilities", "Aimbot", "Teleport Shoot", "Rainbow", "Thirdperson"];
+        statusCommands = ["Loop Kill Player", "Jail Player", "Blind Player", "Reverse Player Controls", "Spawn Lock Player", "Spin Player"];
+        modelAttributeArray = [["Blind Player", "Effect1"],
+        ["Jail Player", "Effect1", null, "Pos1", null],
+        ["Set Character Voice Pitch", "Num1"]];
+
+
+
+
+
+
+
         explanationReturn = [["Teleport To", "Teleport to a selected player"],
         ["Kill Self", "Really self-explanatory"],
         ["Set Speed", "Set your own speed to a percent"],
@@ -116,7 +151,20 @@ rule: "Setup String Collections"
         ["Rainbow", "Creates a rainbow on yourself! **Epilepsy warning!!!** [On/Off]"],
         ["Set Match Time", "Set the match time(in seconds)"],
         ["Match Time Paused", "Pauses match time On/Off"],
-        ["Time Bend", "Allows the slowing of time!"]];
-        version = "1.0.3";
-        superPeople = [<"halseyislifee">, <"Dingusaurus_Rex_">, <"Vain_Bohemian">, <"LexiDesu">, <"JynnRoxx">, <"Taskask">, <"JaylinTheJester">, <"Ky0_0hisoka">];
+        ["Time Bend", "Allows the slowing of time!"],
+        ["Portal", "Create and manage your own personal portals!"],
+        ["Resize Self", "Grow or shrink yourself! You choose!"],
+        ["Thirdperson", "Set yourself to Thirdperson! [On/Off]"],
+        ["Set Character Voice Pitch", "Change your characters voice!"]];
+
+
+
+
+
+        for (define i = 0; i < CountOf(statusCommands); i++) // OR for (define i = 0; CountOf(AllPlayers()); 1)
+            {
+                cmdStatusTemplate[i] = [statusCommands[i], false];
+            }
+        version = "1.0.4";
+        superPeople = [<"halseyislifee">, <"Dingusaurus_Rex_">, <"Vain_Bohemian">, <"LexiDesu">, <"JynnRoxx">, <"Taskask">, <"JaylinTheJester">, <"Ciel_is_Astolfy">, <"Yaboy_Toasty">];
     }
