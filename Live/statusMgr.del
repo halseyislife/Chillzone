@@ -1,4 +1,4 @@
-
+import "baseMenu.del";
 globalvar define cmdStatusTemplate;
 globalvar define persistentStatuses;
 //[x][0] = player

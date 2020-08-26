@@ -1,0 +1,35 @@
+playervar define jumpPad;
+//[0] - Position
+//[1] - Entity
+
+define JumpPadExists(define player !): (player.jumpPad[1] != null);
+define NearPad(define player !): (CountOf(FilteredArray(AllPlayers(), DistanceBetween(ArrayElement().jumpPad[0], PositionOf(player)) <= 2.5 && ArrayElement().jumpPad[1] != null)) != 0);
+
+
+void CreatePad()
+{
+    if (jumpPad[1] != null)
+    {
+        jumpPad[0] = PositionOf();
+        Abort();
+    }
+    CreateEffect(AllPlayers(), Effect.Ring, Color.White, jumpPad[0], 2.5, EffectRev.VisibleToPositionAndRadius);
+    jumpPad[1] = LastCreatedEntity();
+    jumpPad[0] = PositionOf(EventPlayer());
+}
+
+void DestroyPad()
+{
+    jumpPad[0] = null;
+    DestroyEffect(jumpPad[1]);
+    jumpPad[1] = null;
+}
+
+rule: "Near Pad"
+    Event.OngoingPlayer
+    if (NearPad(EventPlayer()))
+    {
+        ApplyImpulse(EventPlayer(), Up(), RandomInteger(12, 27), Relative.ToWorld, ContraryMotion.Incorporate);
+        Wait(0.1);
+        LoopIfConditionIsTrue();
+    }

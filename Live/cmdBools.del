@@ -1,4 +1,4 @@
-
+import "baseMenu.del";
 
 playervar define boolArray; //personal bools
 //[0] = cmd names
@@ -211,27 +211,30 @@ void OnToggle(define cmd !) playervar "OnToggle"
             consoleViewers = Append(consoleViewers, EventPlayer());
         } break;
         case "Rainbow": {
-            CreateEffect(AllPlayers(), Effect.Ring, Color.Purple, EventPlayer(), rainbowAni - 0.1, EffectRev.VisibleToPositionAndRadius);
+            CreateEffect(AllPlayers(), Effect.Ring, Color.Purple, EventPlayer(), (rainbowAni - 0.1) * scalar, EffectRev.VisibleToPositionAndRadius);
             rainbowEnts[0] = LastCreatedEntity();
-            CreateEffect(AllPlayers(), Effect.Ring, Color.Blue, EventPlayer(), rainbowAni - 0.2, EffectRev.VisibleToPositionAndRadius);
+            CreateEffect(AllPlayers(), Effect.Ring, Color.Blue, EventPlayer(), (rainbowAni - 0.2) * scalar, EffectRev.VisibleToPositionAndRadius);
             rainbowEnts[1] = LastCreatedEntity();
-            CreateEffect(AllPlayers(), Effect.Ring, Color.Aqua, EventPlayer(), rainbowAni - 0.3, EffectRev.VisibleToPositionAndRadius);
+            CreateEffect(AllPlayers(), Effect.Ring, Color.Aqua, EventPlayer(), (rainbowAni - 0.3) * scalar, EffectRev.VisibleToPositionAndRadius);
             rainbowEnts[2] = LastCreatedEntity();
-            CreateEffect(AllPlayers(), Effect.Ring, Color.LimeGreen, EventPlayer(), rainbowAni - 0.4, EffectRev.VisibleToPositionAndRadius);
+            CreateEffect(AllPlayers(), Effect.Ring, Color.LimeGreen, EventPlayer(), (rainbowAni - 0.4) * scalar, EffectRev.VisibleToPositionAndRadius);
             rainbowEnts[3] = LastCreatedEntity();
-            CreateEffect(AllPlayers(), Effect.Ring, Color.Green, EventPlayer(), rainbowAni - 0.5, EffectRev.VisibleToPositionAndRadius);
+            CreateEffect(AllPlayers(), Effect.Ring, Color.Green, EventPlayer(), (rainbowAni - 0.5) * scalar, EffectRev.VisibleToPositionAndRadius);
             rainbowEnts[4] = LastCreatedEntity();
-            CreateEffect(AllPlayers(), Effect.Ring, Color.Yellow, EventPlayer(), rainbowAni - 0.6, EffectRev.VisibleToPositionAndRadius);
+            CreateEffect(AllPlayers(), Effect.Ring, Color.Yellow, EventPlayer(), (rainbowAni - 0.6) * scalar, EffectRev.VisibleToPositionAndRadius);
             rainbowEnts[5] = LastCreatedEntity();
-            CreateEffect(AllPlayers(), Effect.Ring, Color.Orange, EventPlayer(), rainbowAni - 0.7, EffectRev.VisibleToPositionAndRadius);
+            CreateEffect(AllPlayers(), Effect.Ring, Color.Orange, EventPlayer(), (rainbowAni - 0.7) * scalar, EffectRev.VisibleToPositionAndRadius);
             rainbowEnts[6] = LastCreatedEntity();
-            CreateEffect(AllPlayers(), Effect.Ring, Color.Red, EventPlayer(), rainbowAni - 0.8, EffectRev.VisibleToPositionAndRadius);
+            CreateEffect(AllPlayers(), Effect.Ring, Color.Red, EventPlayer(), (rainbowAni - 0.8) * scalar, EffectRev.VisibleToPositionAndRadius);
             rainbowEnts[7] = LastCreatedEntity();
-            CreateEffect(AllPlayers(), Effect.Ring, Color.Purple, EventPlayer(), rainbowAni - 0.9, EffectRev.VisibleToPositionAndRadius);
+            CreateEffect(AllPlayers(), Effect.Ring, Color.Purple, EventPlayer(), (rainbowAni - 0.9) * scalar, EffectRev.VisibleToPositionAndRadius);
             rainbowEnts[8] = LastCreatedEntity();
         } break;
         case "Thirdperson": {
             StartCamera(EventPlayer(), ThirdpersonPos(EventPlayer()), ThirdpersonLook(EventPlayer()), 0);
+        } break;
+        case "Ghost": {
+            DisableMovementCollisionWithEnvironment(EventPlayer());
         } break;
     }
 }
@@ -262,6 +265,9 @@ void OffToggle(define cmd !) playervar "Off Toggle"
         case "Thirdperson": 
         {
             StopCamera();
+        } break;
+        case "Ghost": {
+            EnableMovementCollisionWithEnvironment(EventPlayer());
         } break;
     }
 }

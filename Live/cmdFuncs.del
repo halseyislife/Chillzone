@@ -1,5 +1,6 @@
+import "baseMenu.del";
 playervar define camPerson !;
-void StatusSet(define args !) "ST" //translates command into a block
+void StatusSet(define args !) //translates command into a block
 {
     switch (args[1])
     {
@@ -16,6 +17,16 @@ void StatusSet(define args !) "ST" //translates command into a block
     }
 }
 
+
+void HealthPoolParse(define pool !, define int !)
+{
+    switch (pool)
+    {
+        case "Add Armor": AddHealthPoolToPlayer(EventPlayer(), HealthType.Armor, int, true, false); break;
+        case "Add Shield": AddHealthPoolToPlayer(EventPlayer(), HealthType.Shields, int, true, false); break;
+        case "Add Health": AddHealthPoolToPlayer(EventPlayer(), HealthType.Health, int, true, false); break;
+    }
+}
 
 
 

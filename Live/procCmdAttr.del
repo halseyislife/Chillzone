@@ -1,3 +1,4 @@
+import "baseMenu.del";
 playervar define cmdAttributes !;
 //[x][0] - CMD
 //[x][z] - String Pointer

@@ -1,5 +1,5 @@
 
-
+import "baseMenu.del";
 void ParameterPrep() playervar "Parameter Prep"
 {
     paramIndex = 0;
@@ -26,7 +26,6 @@ void SetupParameter(define input !) playervar "Setup Param Selection"
         }
         case "Num": {
             selectedIndex = 0;
-            numArg = 1;
             arrayCollection = null;
             arrayCollection[0] = " ";
             selectionString = <"Select a numerical value below">;

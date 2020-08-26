@@ -1,3 +1,4 @@
+import "baseMenu.del";
 playervar define pageIndex;
 playervar define pageCollection;
 playervar define currPage;

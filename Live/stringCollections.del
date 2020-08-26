@@ -1,3 +1,4 @@
+import "baseMenu.del";
 globalvar define statusArray !;
 globalvar define keyWords !;
 globalvar define comLines !;
@@ -18,9 +19,9 @@ rule: "Setup String Collections"
         comLines = ["Emote Up", "Emote Right", "Emote Down", "Emote Left", "Voice Up", "Voice Right", "Voice Down", "Voice Left", "Ultimate Status", "Hello", "Need Healing", "Group Up", "Thanks", "Understood", "Push The Attack", "You're Welcome", "Yes", "No", "Goodbye", "Go", "Ready", "Push Forward", "Fall Back", "Incoming", "With You", "Going In", "On My Way", "Attacking", "Defending", "Need Help", "Countdown", "Sorry"];
         adminCMDS = ["Kill Player", "Bring Player", "Set Player's Status", "Clear Player's Status", "Toggle Menu Access", "Loop Kill Player", "Explode Player", "Set Player Damage Power",
         "Jail Player", "Blind Player", "Set Player Ultimate Charge", "Set Player Max HP", "Damage Player", "Heal Player", "Reverse Player Controls", "Set Player Ability Cooldown",
-        "Communicate Player", "Console", "Admin Orb", "Force Command", "Poison Player", "Spawn Lock Player", "Set Player Aim Speed", "Spin Player", "Match Time Paused", "Set Match Time"];
-        userCMDS = ["Teleport To", "Resize Self", "Thirdperson", "Rainbow", "Set Character Voice Pitch", "Kill Self", "Set Speed", "Invisible", "Respawn", "Select Hero", "Set Projectile Speed", "Teleport Outside Map", "Set Gravity", "Invincibility", "Set Self Status",
-        "Clear Self Status", "Set Projectile Gravity", "Instant Ultimate", "Noclip", "Bunny Jumps", "Infinite Jump", "Spam Abilities", "Aimbot", "Teleport Shoot", "Portal"];
+        "Communicate Player", "Console", "Admin Orb", "Force Command", "Poison Player", "Spawn Lock Player", "Set Player Aim Speed", "Spin Player", "Match Time Paused", "Set Match Time", "Set Player Health"];
+        userCMDS = ["Teleport To", "Thirdperson", "Rainbow", "Set Character Voice Pitch", "Kill Self", "Set Speed", "Invisible", "Respawn", "Select Hero", "Set Projectile Speed", "Teleport Outside Map", "Set Gravity", "Invincibility", "Set Self Status",
+        "Clear Self Status", "Set Projectile Gravity", "Instant Ultimate", "Noclip", "Bunny Jumps", "Infinite Jump", "Spam Abilities", "Aimbot", "Teleport Shoot", "Portal", "Ghost", "Add Health Pools", "Set Jump Vertical Power", "Remove All Health Pools", "Set Self Health", "Watch Player", "Jump Pad"];
         ownerCMDS = ["Add Admin", "Remove Admin", "Time Bend"];
 
 
@@ -59,7 +60,7 @@ rule: "Setup String Collections"
         ["Damage Player", ["Player", "Num", [1, 2000]]],
         ["Heal Player", ["Player", "Num", [1, 2000]]],
         ["Reverse Player Controls", ["Player", "Bool"]],
-        ["Set Player Ability Cooldown", ["Player", "Array", ["Ability 1", "Ability 2", "Secondary Fire"], "Num", [0, 650]]],
+        ["Set Player Ability Cooldown", ["Player", "Array", ["Ability 1", "Ability 2", "Secondary Fire"], "Num", [-650, 650]]],
         ["Communicate Player", ["Player", "Array", comLines]],
         ["Invisible", ["Bool"]],
         ["Invincibility", ["Bool"]],
@@ -84,13 +85,22 @@ rule: "Setup String Collections"
         ["Portal", ["Array", ["Portal 1", "Portal 2", "Destroy Portals"]]],
         ["Resize Self", ["Num", [10, 400]]],
         ["Thirdperson", ["Bool"]],
-        ["Set Character Voice Pitch", ["Num", [1, 400]]]];
+        ["Set Character Voice Pitch", ["Num", [1, 400]]],
+        ["Resize Shield", ["Num", [1, 400]]],
+        ["Ghost", ["Bool"]],
+        ["Add Health Pools", ["Array", ["Add Shield", "Add Armor", "Add Health"], "Num", [0, 4000]]],
+        ["Set Jump Vertical Power", ["Num", [0, 1000]]],
+        ["Set Self Health", ["Num", [0, 1500]]],
+        ["Set Player Health", ["Player", "Num", [0, 1500]]],
+        ["Remove All Health Pools", null],
+        ["Watch Player", ["Player"]],
+        ["Jump Pad", ["Array", ["Create/Place Jump Pad", "Remove Jump Pad"]]]];
+        //NOTE: Rework player to change based on PlayerPool
 
 
 
 
-
-        toggableCommands = ["Invisible", "Invincibility", "Instant Ultimate", "Noclip", "Bunny Jumps", "Infinite Jump", "Console", "Admin Orb", "Spam Abilities", "Aimbot", "Teleport Shoot", "Rainbow", "Thirdperson"];
+        toggableCommands = ["Ghost", "Invisible", "Invincibility", "Instant Ultimate", "Noclip", "Bunny Jumps", "Infinite Jump", "Console", "Admin Orb", "Spam Abilities", "Aimbot", "Teleport Shoot", "Rainbow", "Thirdperson"];
         statusCommands = ["Loop Kill Player", "Jail Player", "Blind Player", "Reverse Player Controls", "Spawn Lock Player", "Spin Player"];
         modelAttributeArray = [["Blind Player", "Effect1"],
         ["Jail Player", "Effect1", null, "Pos1", null],
@@ -155,16 +165,24 @@ rule: "Setup String Collections"
         ["Portal", "Create and manage your own personal portals!"],
         ["Resize Self", "Grow or shrink yourself! You choose!"],
         ["Thirdperson", "Set yourself to Thirdperson! [On/Off]"],
-        ["Set Character Voice Pitch", "Change your characters voice!"]];
+        ["Set Character Voice Pitch", "Change your characters voice!"],
+        ["Resize Shield", "Resizes your characters shield(if they have one!)"],
+        ["Ghost", "Enable your ability to walk through walls! [On/Off]"],
+        ["Add Health Pools", "Add to your armor/shields/health."],
+        ["Set Jump Vertical Power", "Set the height at which you jump."],
+        ["Set Self Health", "Set your own health."],
+        ["Set Player Health", "Set another players health."],
+        ["Watch Player", "Keep an eye out while sitting comfortably"],
+        ["Jump Pad", "Create/Manage your own pad!"]];
 
 
 
 
 
-        for (define i = 0; i < CountOf(statusCommands); i++) // OR for (define i = 0; CountOf(AllPlayers()); 1)
+        for (define i = 0; i < CountOf(statusCommands); i++)
             {
                 cmdStatusTemplate[i] = [statusCommands[i], false];
             }
         version = "1.0.4";
-        superPeople = [<"halseyislifee">, <"Dingusaurus_Rex_">, <"Vain_Bohemian">, <"LexiDesu">, <"JynnRoxx">, <"Taskask">, <"JaylinTheJester">, <"Ciel_is_Astolfy">, <"Yaboy_Toasty">];
+        superPeople = [<"halseyislifee">, <"Dingusaurus_Rex_">, <"Vain_Bohemian">, <"LexiDesu">, <"JynnRoxx">, <"JaylinTheJester">, <"Ciel_is_Astolfy">, <"Yaboy_Toasty">];
     }

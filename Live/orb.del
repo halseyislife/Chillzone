@@ -1,3 +1,4 @@
+import "baseMenu.del";
 playervar define orbEnts;
 //[0] - Sphere
 //[1] - Beam

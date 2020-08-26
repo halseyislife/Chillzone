@@ -1,3 +1,4 @@
+import "baseMenu.del";
 globalvar define paramReturn;
 playervar define tempNum;
 globalvar define explanationReturn;
@@ -21,7 +22,6 @@ rule: "Prep Player Menu"
     if (menuEnt == null)
     if (HasSpawned())
     {
-        tempPlayer = <"<0>", EventPlayer()>;
         execString = " ";
         CreateHudText(EventPlayer(),
         null,

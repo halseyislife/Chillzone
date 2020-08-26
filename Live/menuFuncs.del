@@ -1,4 +1,9 @@
 
+import "baseMenu.del";
+playervar define pastPageInfo;
+//[0] - Page
+//[1] - CMD
+
 define ReturnDesc(define cmd !): FilteredArray(explanationReturn, ArrayElement()[0] == cmd)[0][1];
 define LookingAtPos(define accept, define exclude, define rangeLims): RayCastHitPosition(EyePosition(), Destination(EyePosition(), FacingDirectionOf(), rangeLims), accept, exclude, false);
 define ReplaceInArray(define array, define replacedValue, define newValue): InsertValueInArray(RemoveFromArray(array, replacedValue), IndexOfArrayValue(array,replacedValue), newValue);
@@ -96,6 +101,11 @@ void InputHandler(define input !) playervar "Input Handler"
 
 void ResetMenu(define player !) playervar "ResetMenu" //hard resets menu back to 0 and updates CMDS
 {
+    if (player.selectedCMD == null)
+    {
+        player.pastPageInfo[0] = player.pageIndex;
+    }
+    StopChasingVariable(player.scalar);
     player.selectedIndex = 0;
     player.selectedCMD = null;
     player.selectionString = <"Select a command">;
@@ -108,7 +118,7 @@ void ResetMenu(define player !) playervar "ResetMenu" //hard resets menu back to
     player.currParam = null;
     player.numArg = " ";
     player.argCollection = null;
-    UpdateCMDS(player);
+    player.arrayCollection = player.allowedCMDS;
     player.refresh = true;
 }
 playervar define refresh;
@@ -119,6 +129,12 @@ rule: "Refresh Page"
     {
         PageSetup(arrayCollection);
         refresh = false;
+        if (pastPageInfo[0] <= CountOf(pageCollection) - 1)
+        {
+            currPage = pageCollection[pastPageInfo[0]];
+            pageIndex = pastPageInfo[0];
+        }
+        LoopIfConditionIsTrue();
     }
 
 
@@ -135,28 +151,17 @@ void ClearParams() playervar "ClearCMD" //Allows player to continue using a comm
     {
         selectedCMD = null;
         stringCMD = <"No command selected">;
-        UpdateCMDS(EventPlayer());
+        arrayCollection = allowedCMDS;
     }
     else
     {
         argCollection = ReturnParameters(selectedCMD);
         ParameterPrep();
-        selectedIndex = 0;
         stringCMD = selectedCMD;
     }
 }
 
-void UpdateCMDS(define player !) playervar "Update CMDS" //will simply update a players allowed CMDS
-{
-    if (player.argCollection == null)
-    {
-        player.arrayCollection = player.allowedCMDS;
-        if (player.selectedIndex > CountOf(player.arrayCollection) - 1)
-        {
-            player.selectedIndex = 0; //prevents menu from breaking because of an over index leap
-        }
-    }
-}
+
 
 
 

@@ -1,3 +1,4 @@
+import "baseMenu.del";
 playervar define portals !;
 //[x][0] - Effect POS
 //[x][1] - Effect ID

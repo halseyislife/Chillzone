@@ -1,3 +1,4 @@
+import "baseMenu.del";
 playervar define startExec;
 rule: "oveeerride"
     Event.OngoingPlayer
@@ -84,26 +85,64 @@ void ExecuteCMD(define cmd !, define player !) playervar "Execute CMD"
         else
         {
             CreatePortal(PortalToIndex(argCollection[0]));
-        }
-        break;
-        case "Resize Self": scalar = argCollection[0] / 100; StartScalingPlayer(EventPlayer(), scalar, true); break;
+        } break;
         case "Set Character Voice Pitch": SetAttribute("Set Character Voice Pitch", EventPlayer(), "Num1", argCollection[0] / 100); break;
+        // case "Resize Shield": StartScalingBarriers(EventPlayer(), argCollection[0] / 100, false); break;
+        case "Add Health Pools": HealthPoolParse(argCollection[0], argCollection[2]); break;
+        case "Remove All Health Pools": RemoveAllHealthPoolsFromPlayer(EventPlayer()); break;
+        case "Set Jump Vertical Power": SetJumpVerticalSpeed(EventPlayer(), argCollection[0]); break;
+        case "Set Self Health": SetPlayerHealth(EventPlayer(), argCollection[0]); break;
+        case "Set Player Health": SetPlayerHealth(argCollection[0], argCollection[2]); break;
+        case "Jump Pad": if (argCollection[0] == "Create/Place Jump Pad")
+        {
+            CreatePad();
+        }
+        else
+        {
+            DestroyPad();
+        } break;
     }
 }
 
-rule: "Fix Scalar"
+rule: "Watch Player"
     Event.OngoingPlayer
-    if (scalar >= 1.2)
+    if (selectedCMD == "Watch Player")
     {
-        DisableMovementCollisionWithEnvironment(EventPlayer(), false);
+        StartCamera(EventPlayer(), ThirdpersonPos(arrayCollection[selectedIndex]), ThirdpersonLook(arrayCollection[selectedIndex]), 0);
     }
 
-rule: "Fix Scalar"
+rule: "UnWatch Player"
     Event.OngoingPlayer
-    if (scalar <= 1)
+    if (selectedCMD != "Watch Player")
     {
-        EnableMovementCollisionWithEnvironment(EventPlayer());
+        StopCamera();
+        if (ReturnBool("Thirdperson", EventPlayer()))
+        {
+            StartCamera(EventPlayer(), ThirdpersonPos(EventPlayer()), ThirdpersonLook(EventPlayer()), 0);
+        }
     }
+
+// rule: "Resize Scale"
+//     Event.OngoingPlayer
+//     if (selectedCMD == "Resize Self")
+//         {
+//             StartScalingPlayer(EventPlayer(), scalar, true);
+//             ChaseVariableAtRate(scalar, numArg / 100, 500, RateChaseReevaluation.DestinationAndRate);
+//         }
+
+// rule: "Fix Scalar"
+//     Event.OngoingPlayer
+//     if (scalar >= 1.2)
+//     {
+//         DisableMovementCollisionWithEnvironment(EventPlayer(), false);
+//     }
+
+// rule: "Fix Scalar"
+//     Event.OngoingPlayer
+//     if (scalar <= 1)
+//     {
+//         EnableMovementCollisionWithEnvironment(EventPlayer());
+//     }
 
 
 define StringToBool(define string !): ["On", 1, "Off", 0][IndexOfArrayValue(["On", 1, "Off", 0], string) + 1];
